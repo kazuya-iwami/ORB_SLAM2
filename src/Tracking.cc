@@ -36,6 +36,7 @@
 #include<iostream>
 
 #include<mutex>
+#include <unistd.h>
 
 
 using namespace std;
@@ -916,7 +917,7 @@ bool Tracking::TrackWithMotionModel()
             else if(mCurrentFrame.mvpMapPoints[i]->Observations()>0)
                 nmatchesMap++;
         }
-    }    
+    }
 
     if(mbOnlyTracking)
     {
