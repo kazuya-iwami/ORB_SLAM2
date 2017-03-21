@@ -27,6 +27,11 @@
 #include <iomanip>
 #include <unistd.h>
 
+#include "Data.h"
+
+#include <boost/archive/binary_oarchive.hpp>
+
+
 namespace ORB_SLAM2
 {
 
@@ -488,6 +493,53 @@ vector<cv::KeyPoint> System::GetTrackedKeyPointsUn()
 {
     unique_lock<mutex> lock(mMutexState);
     return mTrackedKeyPointsUn;
+}
+
+
+void System::SaveData(const string &filename)
+{
+    //save discriptor
+    Data data;
+    //insert Keyframes
+    vector<KeyFrame*> vpKeyFrame = mpMap->GetAllKeyFrames();
+    for(auto pKeyFrame: vpKeyFrame){
+        KeyFrameData keyFrameData;
+
+        keyFrameData.mId = pKeyFrame->mnId;
+        keyFrameData.mTimeStamp = pKeyFrame->mTimeStamp;
+        keyFrameData.mPose = pKeyFrame->GetPose();
+        for(auto keypoint: pKeyFrame->mvKeys){
+            keyFrameData.mvKeyPoint.push_back(keypoint);
+        }
+        // cout << endl << "n_discriptors" <<  keyFrameData.mDescriptors.size() << endl;
+        vector<MapPoint*> pMapPoints = pKeyFrame->GetMapPointMatches();
+        for(auto pMapPoint: pMapPoints){
+            //   if(!pMapPoint || !pMapPoint->isBad()){
+            if(!pMapPoint){
+                keyFrameData.mvMapPointId.push_back(static_cast<long unsigned int>(NULL));
+                continue; //no associated point
+            }
+            keyFrameData.mvMapPointId.push_back(pMapPoint->mnId);
+        }
+        // cout << endl << "n_mappoints" <<  keyFrameData.mMapPointIds.size() << endl;
+        data.mvKeyFrame.push_back(keyFrameData);
+    }
+
+    //insert MapPoints
+    std::vector<MapPoint*> vpMapPoint = mpMap->GetAllMapPoints();
+    for(auto pMapPoint: vpMapPoint){
+        MapPointData mapPointData;
+        mapPointData.mId = pMapPoint->mnId;
+        mapPointData.mPos = pMapPoint->GetWorldPos();
+
+        data.mvMapPoint.push_back(mapPointData);
+    }
+
+    ofstream file(filename);
+    boost::archive::binary_oarchive oa(file);
+    oa << data;
+    file.close();
+    cout << endl << "save data!" << endl;
 }
 
 } //namespace ORB_SLAM

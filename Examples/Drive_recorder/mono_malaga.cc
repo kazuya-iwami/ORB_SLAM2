@@ -23,6 +23,8 @@
 #include <algorithm>
 #include <fstream>
 #include <chrono>
+#include <regex>
+#include <unistd.h>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -35,31 +37,28 @@
 using namespace std;
 namespace fs = boost::filesystem;
 
-void LoadImages(const string &path, vector<cv::Mat> &vstrImageFilenames,
+void LoadImages(const string &path, vector<std::string> &vImageNames,
                 vector<double> &vTimestamps);
 
 int main(int argc, char **argv)
 {
-    if(argc != 4)
+    if(argc != 5)
     {
-        cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_sequence save_path" << endl;
         return 1;
     }
 
     // Retrieve paths to images
-    vector<cv::Mat> vImage;
+    vector<string> vImageNames;
     vector<double> vTimestamps;
-    const string path = string(argv[3]);
-    LoadImages(path, vImage, vTimestamps);
+    const string sequencePath = argv[3];
+    const string savePath = argv[4];
+    LoadImages(sequencePath, vImageNames, vTimestamps);
 
-    int nImages = vImage.size();
+    int nImages = vImageNames.size();
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
-
-    // Vector for tracking time statistics
-    vector<float> vTimesTrack;
-    vTimesTrack.resize(nImages);
 
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
@@ -70,7 +69,7 @@ int main(int argc, char **argv)
     for(int ni=0; ni<nImages; ni++)
     {
         // Read image from file
-        im = vImage[ni];
+        im = cv::imread(vImageNames[ni], CV_LOAD_IMAGE_UNCHANGED);
         double tframe = vTimestamps[ni];
 
         if(im.empty())
@@ -78,76 +77,30 @@ int main(int argc, char **argv)
             cerr << endl << "Failed to load image" << endl;
             return 1;
         }
-
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-#else
-        std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
-#endif
-
         // Pass the image to the SLAM system
         SLAM.TrackMonocular(im,tframe);
-
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-#else
-        std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
-#endif
-
-        double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
-
-        vTimesTrack[ni]=ttrack;
-
-        // Wait to load the next frame
-        double T=0;
-        if(ni<nImages-1)
-            T = vTimestamps[ni+1]-tframe;
-        else if(ni>0)
-            T = tframe-vTimestamps[ni-1];
-
-        if(ttrack<T)
-            usleep((T-ttrack)*1e6);
     }
 
     // Stop all threads
     SLAM.Shutdown();
 
-    // Tracking time statistics
-    sort(vTimesTrack.begin(),vTimesTrack.end());
-    float totaltime = 0;
-    for(int ni=0; ni<nImages; ni++)
-    {
-        totaltime+=vTimesTrack[ni];
-    }
-    cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
-
-    // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+    SLAM.SaveData(savePath);
 
     return 0;
 }
 
-void LoadImages(const string &path, vector<cv::Mat> &vImage, vector<double> &vTimestamps)
+void LoadImages(const string &path, vector<string> &vImageNames, vector<double> &vTimestamps)
 {
-
+    //timestampをidとして扱う
     fs::directory_iterator end;
     for( fs::directory_iterator it(path); it!=end; ++it ){
-        std::list<std::string> results;
-        boost::split(results, it->path().stem().string(), boost::is_any_of("_"));
-        bool isRight = results.back() == "left";
-        results.pop_back();
-        double timeStamp = stod(results.back());
-        if( fs::is_directory(*it) || it->path().extension() != ".jpg" || !isRight)
-            continue;
-
-        cout << fixed << timeStamp  << endl;
-        vTimestamps.push_back(timeStamp);
-        cv::Mat image;
-        image = cv::imread(it->path().string(),CV_LOAD_IMAGE_UNCHANGED);
-        vImage.push_back(image);
+        regex re("image_([0-9]*)");
+        smatch match;
+        if(regex_match(it->path().stem().string(), match, re)){
+            const double timeStamp = double(stoi(match[1]));
+            cout << fixed << timeStamp  << endl;
+            vTimestamps.push_back(timeStamp);
+            vImageNames.push_back(it->path().string());
+        }
     }
-
-
 }
