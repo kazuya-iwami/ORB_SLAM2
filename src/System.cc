@@ -506,7 +506,7 @@ namespace ORB_SLAM2 {
                 keyFrameInfo.covisibles.push_back(int(covisibleKeyFrame->mnId));
             }
 
-            slamData.keyFrameInfoMap[int(pKeyFrame->mnId)] = keyFrameInfo;
+            slamData.keyFrameInfoMap.insert(make_pair(int(pKeyFrame->mnId), keyFrameInfo));
         }
 
         // insert MapPoints
@@ -525,14 +525,15 @@ namespace ORB_SLAM2 {
                 mapPointInfo.kfKpIdPairs.push_back(make_pair(pKF->mnId, int(mit->second)));
             }
 
-            slamData.mapPointInfoMap[int(pMapPoint->mnId)] = mapPointInfo;
+            slamData.mapPointInfoMap.insert(make_pair(int(pMapPoint->mnId), mapPointInfo));
         }
 
+        cout << "Saving Slam Data..." << endl;
         ofstream file(filename);
         boost::archive::binary_oarchive oa(file);
         oa << slamData;
         file.close();
-        cout << endl << "Save SlamData!" << endl;
+        cout << endl << "Done!" << endl;
     }
 
 }  // namespace ORB_SLAM
