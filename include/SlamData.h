@@ -71,7 +71,7 @@ namespace boost {
         }
 
         template <class Archive, class S, int Rows_, int Cols_, int Ops_, int MaxRows_, int MaxCols_>
-        inline void serialize(Archive& ar, Eigen::Matrix<scalar, Rows_, Cols_, Ops_, MaxRows_, MaxCols_>& g,
+        inline void serialize(Archive& ar, Eigen::Matrix<S, Rows_, Cols_, Ops_, MaxRows_, MaxCols_>& g,
                               const unsigned int version) {
             split_free(ar, g, version);
         }
@@ -153,7 +153,7 @@ public:
     void serialize(Archive& ar, const unsigned int version) {
         ar& id;
         ar& pos;
-        ar& kfKpIdMap;
+        ar& kfKpIdPairs;
     }
 };
 
