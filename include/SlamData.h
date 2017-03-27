@@ -138,7 +138,7 @@ public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version) {
         ar& id;
-        ar& pose;
+        ar& Tcw;
         ar& imageId;
         ar& keyPoints;
         ar& mapPointIds;
