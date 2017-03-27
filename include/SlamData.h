@@ -118,10 +118,10 @@ public:
     cv::Mat descriptors;                  // idx : kpId
     std::vector<float> invLevelSigma2s;   // idx : KeyPoint.octave
 
-    int parentId;  // 親のKfId 存在しない場合:-1
+    int parentId;  // not found : -1
     std::set<int> childIds;
     std::vector<int> loopIds;
-    std::vector<int> strongCovisibles;  //多数の対応点で結ばれているKfのId
+    std::vector<int> strongCovisibles;
     std::vector<int> covisibles;
 
     friend class boost::serialization::access;

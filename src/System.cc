@@ -459,7 +459,7 @@ namespace ORB_SLAM2 {
             KeyFrameInfo keyFrameInfo;
 
             keyFrameInfo.id = int(pKeyFrame->mnId);
-            keyFrameInfo.imageId = int(pKeyFrame->mTimeStamp);  // timestampにはimageIdを用いる
+            keyFrameInfo.imageId = int(pKeyFrame->mTimeStamp);  // use timestamp as imageId
             Eigen::Matrix4d pose;
             cv::cv2eigen(pKeyFrame->GetPose(), pose);
             keyFrameInfo.pose = pose;
@@ -476,11 +476,6 @@ namespace ORB_SLAM2 {
                 }
                 keyFrameInfo.mapPointIds.push_back(pMapPoint->mnId);
             }
-            int parentId;  // 親のKfId 存在しない場合:-1
-            std::vector<int> childIds;
-            std::vector<int> loopIds;
-            std::vector<int> strongCovisibles;  //多数の対応点で結ばれているKfのId
-            std::vector<int> covisibles;
 
             KeyFrame *parentKeyFrame = pKeyFrame->GetParent();
             if (parentKeyFrame) {
@@ -537,7 +532,7 @@ namespace ORB_SLAM2 {
         boost::archive::binary_oarchive oa(file);
         oa << slamData;
         file.close();
-        cout << endl << "Save slam data!" << endl;
+        cout << endl << "Save SlamData!" << endl;
     }
 
 }  // namespace ORB_SLAM
