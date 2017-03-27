@@ -7,6 +7,7 @@
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/set.hpp>
 
 BOOST_SERIALIZATION_SPLIT_FREE(::cv::Mat)
 namespace boost {
@@ -46,7 +47,6 @@ namespace boost {
     }
 }
 
-BOOST_SERIALIZATION_SPLIT_FREE(Eigen::Matrix)
 namespace boost {
     namespace serialization {
 
