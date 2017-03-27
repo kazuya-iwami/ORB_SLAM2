@@ -1,15 +1,18 @@
-#include <vector>
-#include <unordered_map>
+#ifndef SLAM_DATA_H
+#define SLAM_DATA_H
 
-#include <Eigen/Core>
+#include <unordered_map>
+#include <vector>
+
+#include <Eigen/Dense>
 
 #include <opencv2/opencv.hpp>
 
+#include <boost/serialization/set.hpp>
 #include <boost/serialization/split_free.hpp>
+#include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/serialization/set.hpp>
-#include <boost/serialization/unordered_map.hpp>
 
 BOOST_SERIALIZATION_SPLIT_FREE(::cv::Mat)
 namespace boost {
@@ -113,37 +116,41 @@ namespace boost {
 class KeyFrameInfo {
 public:
     int id;
-    Eigen::Matrix4d Tcw; //Tcw
     int imageId;
+    Eigen::Matrix3d Rcw;
+    Eigen::Vector3d tcw;
+    std::vector<float> invLevelSigma2s;   // idx : KeyPoint.octave
+
     std::vector<cv::KeyPoint> keyPoints;  // idx : kpId
     std::vector<int> mapPointIds;         // idx : kpId
     cv::Mat descriptors;                  // idx : kpId
-    std::vector<float> invLevelSigma2s;   // idx : KeyPoint.octave
 
+    // Used in Pose graph optimization
     int parentId;  // not found : -1
     std::set<int> childIds;
     std::vector<int> loopIds;
     std::vector<int> strongCovisibles;
     std::vector<int> covisibles;
 
-    const Eigen::Matrix3d getRcw(){
-        return Tcw.block(0, 0, 3, 3);
-    }
-
-    const Eigen::Vector3d gettwc(){
-        return Tcw.block(0, 3, 3, 1);
+    const Eigen::Vector3d getCenter() {
+        Eigen::Matrix4d Tcw;
+        Tcw.setIdentity();
+        Tcw.block(0, 0, 3, 3) = Rcw;
+        Tcw.block(0, 3, 3, 1) = tcw;
+        return Tcw.inverse().block(0, 3, 3, 1);
     }
 
     friend class boost::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version) {
         ar& id;
-        ar& Tcw;
         ar& imageId;
+        ar& Rcw;
+        ar& tcw;
+        ar& invLevelSigma2s;
         ar& keyPoints;
         ar& mapPointIds;
         ar& descriptors;
-        ar& invLevelSigma2s;
         ar& parentId;
         ar& childIds;
         ar& loopIds;
@@ -179,3 +186,5 @@ public:
         ar& mapPointInfoMap;
     }
 };
+
+#endif
