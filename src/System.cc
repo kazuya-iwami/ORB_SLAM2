@@ -506,7 +506,7 @@ namespace ORB_SLAM2 {
                 keyFrameInfo.covisibles.push_back(int(covisibleKeyFrame->mnId));
             }
 
-            slamData.keyFrameInfos.push_back(keyFrameInfo);
+            slamData.keyFrameInfoMap[int(pKeyFrame->mnId)] = keyFrameInfo;
         }
 
         // insert MapPoints
@@ -525,7 +525,7 @@ namespace ORB_SLAM2 {
                 mapPointInfo.kfKpIdPairs.push_back(make_pair(pKF->mnId, int(mit->second)));
             }
 
-            slamData.mapPointInfos.push_back(mapPointInfo);
+            slamData.mapPointInfoMap[int(pMapPoint->mnId)] = mapPointInfo;
         }
 
         ofstream file(filename);

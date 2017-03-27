@@ -1,4 +1,5 @@
 #include <vector>
+#include <unordered_map>
 
 #include <Eigen/Core>
 
@@ -8,6 +9,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/set.hpp>
+#include <boost/serialization/unordered_map.hpp>
 
 BOOST_SERIALIZATION_SPLIT_FREE(::cv::Mat)
 namespace boost {
@@ -111,7 +113,7 @@ namespace boost {
 class KeyFrameInfo {
 public:
     int id;
-    Eigen::Matrix4d pose;
+    Eigen::Matrix4d pose; //Tcw
     int imageId;
     std::vector<cv::KeyPoint> keyPoints;  // idx : kpId
     std::vector<int> mapPointIds;         // idx : kpId
@@ -159,13 +161,13 @@ public:
 
 class SlamData {
 public:
-    std::vector<KeyFrameInfo> keyFrameInfos;
-    std::vector<MapPointInfo> mapPointInfos;
+    std::unordered_map<int, KeyFrameInfo> keyFrameInfoMap;
+    std::unordered_map<int, MapPointInfo> mapPointInfoMap;
 
     friend class boost::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version) {
-        ar& keyFrameInfos;
-        ar& mapPointInfos;
+        ar& keyFrameInfoMap;
+        ar& mapPointInfoMap;
     }
 };
