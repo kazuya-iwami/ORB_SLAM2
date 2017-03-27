@@ -450,6 +450,7 @@ namespace ORB_SLAM2 {
     }
 
     void System::SaveData(const string &filename) {
+        cout << "Saving Slam Data..." << endl;
         SlamData slamData;
         // insert Keyframes
         vector<KeyFrame *> vpKeyFrame = mpMap->GetAllKeyFrames();
@@ -462,7 +463,7 @@ namespace ORB_SLAM2 {
             keyFrameInfo.imageId = int(pKeyFrame->mTimeStamp);  // use timestamp as imageId
             Eigen::Matrix4d pose;
             cv::cv2eigen(pKeyFrame->GetPose(), pose);
-            keyFrameInfo.pose = pose;
+            keyFrameInfo.Tcw = pose;
             keyFrameInfo.invLevelSigma2s = pKeyFrame->mvInvLevelSigma2;
             for (auto keypoint : pKeyFrame->mvKeysUn) {
                 keyFrameInfo.keyPoints.push_back(keypoint);
@@ -512,6 +513,8 @@ namespace ORB_SLAM2 {
         // insert MapPoints
         std::vector<MapPoint *> vpMapPoint = mpMap->GetAllMapPoints();
         for (auto pMapPoint : vpMapPoint) {
+            if (pMapPoint->isBad()) continue;
+
             MapPointInfo mapPointInfo;
             mapPointInfo.id = int(pMapPoint->mnId);
             Eigen::Vector3d pos;
@@ -528,7 +531,7 @@ namespace ORB_SLAM2 {
             slamData.mapPointInfoMap.insert(make_pair(int(pMapPoint->mnId), mapPointInfo));
         }
 
-        cout << "Saving Slam Data..." << endl;
+        cout << "   serializing..." << endl;
         ofstream file(filename);
         boost::archive::binary_oarchive oa(file);
         oa << slamData;

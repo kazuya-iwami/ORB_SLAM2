@@ -113,7 +113,7 @@ namespace boost {
 class KeyFrameInfo {
 public:
     int id;
-    Eigen::Matrix4d pose; //Tcw
+    Eigen::Matrix4d Tcw; //Tcw
     int imageId;
     std::vector<cv::KeyPoint> keyPoints;  // idx : kpId
     std::vector<int> mapPointIds;         // idx : kpId
@@ -125,6 +125,14 @@ public:
     std::vector<int> loopIds;
     std::vector<int> strongCovisibles;
     std::vector<int> covisibles;
+
+    const Eigen::Matrix3d getRcw(){
+        return Tcw.block(0, 0, 3, 3);
+    }
+
+    const Eigen::Vector3d gettwc(){
+        return Tcw.block(0, 3, 3, 1);
+    }
 
     friend class boost::serialization::access;
     template <class Archive>
