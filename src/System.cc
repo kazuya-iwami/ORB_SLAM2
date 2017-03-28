@@ -509,7 +509,7 @@ namespace ORB_SLAM2 {
                 keyFrameInfo.covisibles.push_back(int(covisibleKeyFrame->mnId));
             }
 
-            slamData.keyFrameInfoMap.insert(make_pair(int(pKeyFrame->mnId), keyFrameInfo));
+            slamData.keyFrameInfoMap.insert(make_pair(keyFrameInfo.imageId, keyFrameInfo));
         }
 
         // insert MapPoints
