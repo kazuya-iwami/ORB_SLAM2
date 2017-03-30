@@ -482,31 +482,31 @@ namespace ORB_SLAM2 {
 
             KeyFrame *parentKeyFrame = pKeyFrame->GetParent();
             if (parentKeyFrame) {
-                keyFrameInfo.parentId = int(pKeyFrame->GetParent()->mnId);
+                keyFrameInfo.parentId = int(pKeyFrame->GetParent()->mTimeStamp);
             } else {
                 keyFrameInfo.parentId = -1;
             }
 
             set<KeyFrame *> childKeyFrames = pKeyFrame->GetChilds();
             for (auto childKeyFrame : childKeyFrames) {
-                keyFrameInfo.childIds.insert(int(childKeyFrame->mnId));
+                keyFrameInfo.childIds.insert(int(childKeyFrame->mTimeStamp));
             }
 
             set<KeyFrame *> loopKeyFrames = pKeyFrame->GetLoopEdges();
             for (auto loopKeyFrame : loopKeyFrames) {
-                keyFrameInfo.loopIds.push_back(int(loopKeyFrame->mnId));
+                keyFrameInfo.loopIds.push_back(int(loopKeyFrame->mTimeStamp));
             }
 
             const int minFeat = 100;
             vector<KeyFrame *> strongKeyFrames = pKeyFrame->GetCovisiblesByWeight(minFeat);
             for (auto strongKeyFrame : strongKeyFrames) {
-                keyFrameInfo.strongCovisibles.push_back(int(strongKeyFrame->mnId));
+                keyFrameInfo.strongCovisibles.push_back(int(strongKeyFrame->mTimeStamp));
             }
 
             vector<KeyFrame *> covisibleKeyFrames = pKeyFrame->GetVectorCovisibleKeyFrames();
             for (auto covisibleKeyFrame : covisibleKeyFrames) {
                 if (covisibleKeyFrame->isBad()) continue;
-                keyFrameInfo.covisibles.push_back(int(covisibleKeyFrame->mnId));
+                keyFrameInfo.covisibles.push_back(int(covisibleKeyFrame->mTimeStamp));
             }
 
             slamData.keyFrameInfoMap.insert(make_pair(keyFrameInfo.imageId, keyFrameInfo));
@@ -527,7 +527,7 @@ namespace ORB_SLAM2 {
             for (map<KeyFrame *, size_t>::const_iterator mit = observations.begin(); mit != observations.end(); mit++) {
                 KeyFrame *pKF = mit->first;
                 if (pKF->isBad()) continue;
-                mapPointInfo.kfKpIdPairs.push_back(make_pair(pKF->mnId, int(mit->second)));
+                mapPointInfo.kfKpIdPairs.push_back(make_pair(int(pKF->mTimeStamp), int(mit->second)));
             }
 
             slamData.mapPointInfoMap.insert(make_pair(int(pMapPoint->mnId), mapPointInfo));
