@@ -206,7 +206,7 @@ namespace ORB_SLAM2 {
         return Tcw;
     }
 
-    cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp) {
+    cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp, const cv::Mat &mask) {
         if (mSensor != MONOCULAR) {
             cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
             exit(-1);
@@ -242,7 +242,7 @@ namespace ORB_SLAM2 {
             }
         }
 
-        cv::Mat Tcw = mpTracker->GrabImageMonocular(im, timestamp);
+        cv::Mat Tcw = mpTracker->GrabImageMonocular(im, timestamp, mask);
 
         unique_lock<mutex> lock2(mMutexState);
         mTrackingState = mpTracker->mState;
@@ -251,6 +251,7 @@ namespace ORB_SLAM2 {
 
         return Tcw;
     }
+
 
     void System::ActivateLocalizationMode() {
         unique_lock<mutex> lock(mMutexMode);
@@ -459,7 +460,6 @@ namespace ORB_SLAM2 {
 
             KeyFrameInfo keyFrameInfo;
 
-            keyFrameInfo.id = int(pKeyFrame->mnId);
             keyFrameInfo.imageId = int(pKeyFrame->mTimeStamp);  // use timestamp as imageId
             Eigen::Matrix4d pose;
             cv::cv2eigen(pKeyFrame->GetPose(), pose);

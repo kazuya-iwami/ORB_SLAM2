@@ -1052,9 +1052,23 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     // Pre-compute the scale pyramid
     ComputePyramid(image);
 
-    vector < vector<KeyPoint> > allKeypoints;
-    ComputeKeyPointsOctTree(allKeypoints);
+    vector < vector<KeyPoint> > _allKeypoints;
+    ComputeKeyPointsOctTree(_allKeypoints);
     //ComputeKeyPointsOld(allKeypoints);
+
+    vector < vector<KeyPoint> > allKeypoints;
+
+    if(!mask.empty()) {
+        for (int level = 0; level < nlevels; ++level) {
+            float scale = mvScaleFactor[level];
+
+            for (auto keypoint : _allKeypoints[level]) {
+                if (_mask.at < unsigned char > (keypoint.pt.y * scale, keypoint.pt.x * scale) != 0){
+                    allKeypoints[level].push_back(keypoint);
+                }
+            }
+        }
+    }
 
     Mat descriptors;
 

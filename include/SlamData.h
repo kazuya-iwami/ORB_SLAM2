@@ -115,7 +115,6 @@ namespace boost {
 
 class KeyFrameInfo {
 public:
-    int id;
     int imageId;
     Eigen::Matrix3d Rcw;
     Eigen::Vector3d tcw;
@@ -143,7 +142,6 @@ public:
     friend class boost::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version) {
-        ar& id;
         ar& imageId;
         ar& Rcw;
         ar& tcw;
