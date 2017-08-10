@@ -12,6 +12,7 @@ Examples/ROS/ORB_SLAM2/Stereo
 Examples/ROS/ORB_SLAM2/build/
 Examples/Stereo/stereo_euroc
 Examples/Stereo/stereo_kitti
+Examples/Drive_recorder/mono_malaga_mask
 KeyFrameTrajectory.txt
 Thirdparty/DBoW2/build/
 Thirdparty/DBoW2/lib/
@@ -22,3 +23,6 @@ Vocabulary/ORBvoc.txt
 build/
 *~
 lib/
+.idea/
+cmake_modules
+cmake-build-debug
