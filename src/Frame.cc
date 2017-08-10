@@ -187,7 +187,6 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
     mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
-    cout << "Frame::Frame" << endl;
     // ORB extraction
     ExtractORB(0,imGray, mask);
 

@@ -74,14 +74,19 @@ int main(int argc, char **argv) {
         mask = cv::imread(maskPath.string()+ "/" + timeStampedImageName.second + ".png", CV_LOAD_IMAGE_GRAYSCALE);
         if (mask.empty()) {
             cerr << endl << "Failed to load image: " << maskPath.string() + timeStampedImageName.second + ".png" << endl;
-            mask = cv::Mat(image.size(), CV_8UC3, cv::Scalar::all(0));
+            mask = cv::Mat(image.size(), CV_8UC1, cv::Scalar::all(255));
+
+            //test
+//            cv::Rect roi(200, 200, 800, 300);
+//            cv::Mat image_ = mask(roi);
+//            image_.setTo(cv::Scalar::all(0));
         }
 
         double timeStamp = timeStampedImageName.first;
 
 
         // Pass the image to the SLAM system
-        SLAM.TrackMonocular(image, timeStamp, cv::Mat());
+        SLAM.TrackMonocular(image, timeStamp, mask);
     }
 
     // Stop all threads
