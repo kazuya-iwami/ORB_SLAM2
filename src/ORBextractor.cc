@@ -1048,8 +1048,9 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
 
     Mat image = _image.getMat();
     Mat mask = _mask.getMat();
+
     assert(image.type() == CV_8UC1 );
-    assert(mask.type() == CV_8UC1 );
+    if(!mask.empty()) assert(mask.type() == CV_8UC1 );
 
     // Pre-compute the scale pyramid
     ComputePyramid(image);
@@ -1061,6 +1062,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     vector < vector<KeyPoint> > allKeypoints;
 
     if(!mask.empty()) {
+        cout << "using mask" << endl;
         for (int level = 0; level < nlevels; ++level) {
             float scale = mvScaleFactor[level];
 
@@ -1070,6 +1072,8 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
                 }
             }
         }
+    }else{
+        allKeypoints = _allKeypoints;
     }
 
     Mat descriptors;

@@ -85,6 +85,10 @@ ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Drive_recorder)
 
+add_executable(mono_malaga_mask
+Examples/Drive_recorder/mono_malaga_mask.cc)
+target_link_libraries(mono_malaga_mask ${PROJECT_NAME})
+
 add_executable(mono_malaga
-Examples/Drive_recorder/mono_malaga.cc)
+        Examples/Drive_recorder/mono_malaga.cc)
 target_link_libraries(mono_malaga ${PROJECT_NAME})

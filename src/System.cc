@@ -212,6 +212,8 @@ namespace ORB_SLAM2 {
             exit(-1);
         }
 
+        cout << "System::TrackMonocular" << endl;
+
         // Check mode change
         {
             unique_lock<mutex> lock(mMutexMode);
